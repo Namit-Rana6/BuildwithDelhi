@@ -1,9 +1,4 @@
-# --- Step 1: Install necessary libraries ---
-# This command installs the required packages for the UI, model, and tunneling.
-%pip install streamlit pyngrok ultralytics requests -q
 
-# --- Step 2: Define the complete Streamlit app code ---
-# This block contains the entire, corrected user interface and logic for the AetherVision AI application.
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
@@ -160,17 +155,13 @@ with st.sidebar:
 
 
 # --- Model Loading Logic ---
-MODEL_URL = "https://drive.google.com/uc?export=download&id=161zFNNnU8Ct6lf2_8qG9Qe_rSPzJwx8D"
-
-MODEL_PATH = "model.pt"
-
-model_downloaded = download_file_from_url(MODEL_URL, MODEL_PATH)
+MODEL_PATH = "best (2).pt"
 
 model = None
-if model_downloaded and os.path.exists(MODEL_PATH):
+if os.path.exists(MODEL_PATH):
     model = load_yolo_model(MODEL_PATH)
 else:
-    st.error("Model file could not be loaded. Please check the URL or file path.")
+    st.error("Model file could not be loaded. Please check the file path.")
 
 # --- Primary UI Flow ---
 # View 1: Uploader
@@ -237,39 +228,3 @@ else:
         st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
-
-
-# --- Step 3: Write the app code to a file ---
-with open("app.py", "w") as f:
-    f.write(app_code)
-
-print("✅ 'AetherVision AI' app code has been successfully written to app.py.")
-
-# --- Step 4: Launch the app with a public URL using ngrok ---
-from pyngrok import ngrok
-import os
-
-# --- Add your ngrok authtoken here ---
-# Get your token from https://dashboard.ngrok.com/get-started/your-authtoken
-NGROK_AUTH_TOKEN = "30k3GBmcxKhrzVE9NLC4oTK6CdP_5PE6RBhQqfq5z2jy5mGDV"  # <--- PASTE YOUR NGROK TOKEN HERE
-
-# Kill any existing ngrok tunnels and set the auth token
-ngrok.kill()
-try:
-    ngrok.set_auth_token(NGROK_AUTH_TOKEN)
-except Exception as e:
-    print(f"Error setting ngrok auth token: {e}. Please ensure it is correct.")
-
-# Run the Streamlit app in the background using nohup
-if os.path.exists("app.py"):
-    print("🚀 Launching Streamlit app...")
-    !nohup streamlit run app.py &
-    try:
-        # Create ngrok tunnel to the Streamlit port (8501)
-        public_url = ngrok.connect(8501)
-        print("🎉 Your app is live! Click this link to open it:")
-        print(public_url)
-    except Exception as e:
-        print(f"Could not connect to ngrok. Error: {e}")
-else:
-    print("❌ Error: app.py not found. Please run the script again to create the file.")
